@@ -144,3 +144,115 @@ tabla_conteos_1_gt <- tabla_conteos_1 %>%
   )
 
 invisible(tabla_conteos_1_gt)
+
+# ---------------------------------------------------------
+# Punto 2
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+tabla_roi <- data %>%
+  select(Movie, Budget, Total_US_Gross, ROI_US)
+
+tabla_roi_gt <- tabla_roi %>%
+  gt() %>%
+  tab_header(
+    title = md("**ROI de EE. UU. por Película**")
+  ) %>%
+  fmt_number(
+    columns = c(Budget, Total_US_Gross),
+    decimals = 2
+  ) %>%
+  fmt_number(
+    columns = ROI_US,
+    decimals = 4
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = c(Budget, Total_US_Gross, ROI_US)
+  ) %>%
+  tab_options(
+    table.width = pct(100),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(5)
+  )
+
+invisible(tabla_roi_gt)
+
+# ---------------------------------------------------------
+# Inciso (b)
+# ---------------------------------------------------------
+
+prueba_ic_roi <- t.test(data$ROI_US, conf.level = 0.95)
+
+tabla_ic_roi <- data.frame(
+  Concepto = c("Media ROI_US", "Límite inferior", "Límite superior"),
+  Valor = c(
+    mean(data$ROI_US, na.rm = TRUE),
+    prueba_ic_roi$conf.int[1],
+    prueba_ic_roi$conf.int[2]
+  )
+)
+
+tabla_ic_roi_gt <- tabla_ic_roi %>%
+  gt() %>%
+  tab_header(
+    title = md("**Intervalo de Confianza al 95% para la Media de ROI_US**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 4
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(75),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_ic_roi_gt)
+
+# ---------------------------------------------------------
+# Inciso (c)
+# ---------------------------------------------------------
+
+prueba_hipotesis_roi <- t.test(data$ROI_US, mu = 0.12, alternative = "greater")
+
+tabla_hipotesis_roi <- data.frame(
+  Estadístico = c("t", "Valor p", "Media muestral", "Valor hipotético"),
+  Valor = c(
+    as.numeric(prueba_hipotesis_roi$statistic),
+    prueba_hipotesis_roi$p.value,
+    mean(data$ROI_US, na.rm = TRUE),
+    0.12
+  )
+)
+
+tabla_hipotesis_roi_gt <- tabla_hipotesis_roi %>%
+  gt() %>%
+  tab_header(
+    title = md("**Prueba de Hipótesis: Media de ROI_US > 12%**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(75),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_hipotesis_roi_gt)
