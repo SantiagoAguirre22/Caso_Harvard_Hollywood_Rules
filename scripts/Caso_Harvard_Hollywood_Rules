@@ -578,3 +578,139 @@ tabla_5b_gt <- tabla_5b %>%
   )
 
 invisible(tabla_5b_gt)
+
+# ---------------------------------------------------------
+# Punto 6
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+modelo_6a <- lm(Opening_Gross ~ Budget + Comedy + MPAA_D + Sequel + Known_Story +
+                  Summer + Holiday + Christmas + Opening_Theatres,
+                data = data)
+
+summary(modelo_6a)
+
+tabla_6a <- tidy(modelo_6a) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_6a_gt <- tabla_6a %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Inicial para Opening_Gross**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_6a_gt)
+
+# ---------------------------------------------------------
+# Inciso (b)
+# ---------------------------------------------------------
+
+modelo_6b <- modelo_6a
+
+repeat {
+  pvals <- summary(modelo_6b)$coefficients[, 4]
+  pvals <- pvals[-1]
+  
+  if (max(pvals) > 0.10) {
+    variable_eliminar <- names(which.max(pvals))
+    modelo_6b <- update(modelo_6b, paste(". ~ . -", variable_eliminar))
+  } else {
+    break
+  }
+}
+
+summary(modelo_6b)
+
+tabla_6b <- tidy(modelo_6b) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_6b_gt <- tabla_6b %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Final para Opening_Gross**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_6b_gt)
+
+# ---------------------------------------------------------
+# Inciso (d)
+# ---------------------------------------------------------
+
+coef_teatros <- coef(modelo_6b)["Opening_Theatres"]
+ic_teatros <- confint(modelo_6b, level = 0.95)["Opening_Theatres", ]
+
+tabla_6d <- data.frame(
+  Concepto = c(
+    "Cambio esperado por 100 teatros adicionales",
+    "Límite inferior 95%",
+    "Límite superior 95%"
+  ),
+  Valor = c(
+    coef_teatros * 100,
+    ic_teatros[1] * 100,
+    ic_teatros[2] * 100
+  )
+)
+
+tabla_6d_gt <- tabla_6d %>%
+  gt() %>%
+  tab_header(
+    title = md("**Cambio Esperado en Opening_Gross por 100 Teatros Adicionales**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(80),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_6d_gt)
