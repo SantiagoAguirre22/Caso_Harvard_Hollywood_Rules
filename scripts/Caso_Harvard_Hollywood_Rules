@@ -1090,3 +1090,63 @@ tabla_8d_gt <- tabla_8d %>%
 
 invisible(tabla_8d_gt)
 
+# ---------------------------------------------------------
+# Punto 9
+# ---------------------------------------------------------
+
+modelo_9 <- lm(Total_US_Gross ~
+                 Opening_Gross +
+                 Critics_Opinion +
+                 Budget +
+                 MPAA_D +
+                 Comedy +
+                 Critics_Opinion:Comedy,
+               data = data)
+
+summary(modelo_9)
+
+tabla_9 <- tidy(modelo_9) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_9_gt <- tabla_9 %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo con Interacción para Evaluar el Efecto Diferencial en Comedias**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_9_gt)
+
+grafico_9 <- ggplot(data, aes(x = Critics_Opinion,
+                              y = Total_US_Gross,
+                              color = factor(Comedy))) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relación entre Critics_Opinion y Total_US_Gross",
+    x = "Critics_Opinion",
+    y = "Total_US_Gross",
+    color = "Grupo"
+  ) +
+  scale_color_discrete(labels = c("No Comedy", "Comedy")) +
+  formato_grafica
+
+print(grafico_9)
