@@ -410,3 +410,171 @@ grafico_3b <- ggplot(data, aes(x = factor(Comedy, labels = c("No Comedy", "Comed
   formato_grafica
 
 print(grafico_3b)
+
+# ---------------------------------------------------------
+# Punto 4
+# ---------------------------------------------------------
+
+prueba_4 <- t.test(Total_US_Gross ~ MPAA_D, data = data)
+
+tabla_4_medias <- data.frame(
+  Grupo = c("No R-rated", "R-rated"),
+  Media = c(
+    mean(data$Total_US_Gross[data$MPAA_D == 0], na.rm = TRUE),
+    mean(data$Total_US_Gross[data$MPAA_D == 1], na.rm = TRUE)
+  )
+)
+
+tabla_4_medias_gt <- tabla_4_medias %>%
+  gt() %>%
+  tab_header(
+    title = md("**Comparación de Medias de Total_US_Gross según MPAA_D**")
+  ) %>%
+  fmt_number(
+    columns = Media,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(75),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_4_medias_gt)
+
+tabla_4_prueba <- data.frame(
+  Estadístico = c("t", "Valor p"),
+  Valor = c(as.numeric(prueba_4$statistic), prueba_4$p.value)
+)
+
+tabla_4_prueba_gt <- tabla_4_prueba %>%
+  gt() %>%
+  tab_header(
+    title = md("**Prueba t para Total_US_Gross: R-rated vs No R-rated**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(65),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_4_prueba_gt)
+
+grafico_4 <- ggplot(data, aes(x = factor(MPAA_D, labels = c("No R-rated", "R-rated")),
+                              y = Total_US_Gross)) +
+  geom_boxplot(fill = "steelblue") +
+  labs(
+    title = "Total_US_Gross según MPAA_D",
+    x = "Grupo",
+    y = "Total_US_Gross"
+  ) +
+  formato_grafica
+
+print(grafico_4)
+
+# ---------------------------------------------------------
+# Punto 5
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+modelo_5a <- lm(Total_US_Gross ~ Budget + Comedy + MPAA_D + Sequel + Known_Story,
+                data = data)
+
+summary(modelo_5a)
+
+tabla_5a <- tidy(modelo_5a) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_5a_gt <- tabla_5a %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Inicial para Total_US_Gross**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_5a_gt)
+
+# ---------------------------------------------------------
+# Inciso (b)
+# ---------------------------------------------------------
+
+modelo_5b <- modelo_5a
+
+repeat {
+  pvals <- summary(modelo_5b)$coefficients[, 4]
+  pvals <- pvals[-1]
+  
+  if (max(pvals) > 0.10) {
+    variable_eliminar <- names(which.max(pvals))
+    modelo_5b <- update(modelo_5b, paste(". ~ . -", variable_eliminar))
+  } else {
+    break
+  }
+}
+
+summary(modelo_5b)
+
+tabla_5b <- tidy(modelo_5b) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_5b_gt <- tabla_5b %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Final para Total_US_Gross**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_5b_gt)
