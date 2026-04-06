@@ -782,3 +782,129 @@ print(grafico_7a)
 
 prueba_7c <- linearHypothesis(modelo_7a, "Opening_Gross = 4")
 tabla_7c <- as.data.frame(prueba_7c)
+
+# ---------------------------------------------------------
+# Inciso (e)
+# ---------------------------------------------------------
+
+modelo_7e <- lm(Total_US_Gross ~ Opening_Gross + Budget + Comedy + MPAA_D +
+                  Sequel + Known_Story + Summer + Holiday + Christmas +
+                  Opening_Theatres,
+                data = data)
+
+summary(modelo_7e)
+
+tabla_7e <- tidy(modelo_7e) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_7e_gt <- tabla_7e %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Inicial del Punto 7e**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_7e_gt)
+
+modelo_7e_final <- modelo_7e
+
+repeat {
+  pvals <- summary(modelo_7e_final)$coefficients[, 4]
+  pvals <- pvals[-1]
+  
+  if (max(pvals) > 0.10) {
+    variable_eliminar <- names(which.max(pvals))
+    modelo_7e_final <- update(modelo_7e_final, paste(". ~ . -", variable_eliminar))
+  } else {
+    break
+  }
+}
+
+summary(modelo_7e_final)
+
+tabla_7e_final <- tidy(modelo_7e_final) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_7e_final_gt <- tabla_7e_final %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Final del Punto 7e**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_7e_final_gt)
+
+# ---------------------------------------------------------
+# Inciso (f)
+# ---------------------------------------------------------
+
+prueba_7f <- linearHypothesis(modelo_7e_final, "Opening_Gross = 4")
+tabla_7f <- as.data.frame(prueba_7f)
+
+# ---------------------------------------------------------
+# Inciso (g)
+# ---------------------------------------------------------
+
+tabla_7g <- data.frame(
+  Medida = "R cuadrado del modelo simple",
+  Valor = summary(modelo_7a)$r.squared
+)
+
+tabla_7g_gt <- tabla_7g %>%
+  gt() %>%
+  tab_header(
+    title = md("**Proporción de Variación Explicada**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(70),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_7g_gt)
+
