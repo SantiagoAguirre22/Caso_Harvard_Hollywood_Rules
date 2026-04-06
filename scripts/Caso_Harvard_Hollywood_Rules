@@ -32,3 +32,37 @@ formato_grafica <- theme_gray() +
     axis.title = element_text(size = 11),
     axis.text = element_text(size = 10)
   )
+
+# ---------------------------------------------------------
+# Lectura de datos
+# ---------------------------------------------------------
+
+data <- read_excel("Hollywood.xls", sheet = "Exhibit 1")
+
+# Limpiar nombres de columnas
+names(data) <- trimws(names(data))
+
+# Renombrar variables para evitar errores con espacios y símbolos
+names(data)[names(data) == "Opening Gross"] <- "Opening_Gross"
+names(data)[names(data) == "Total U.S. Gross"] <- "Total_US_Gross"
+names(data)[names(data) == "Total Non-U.S. Gross"] <- "Total_Non_US_Gross"
+names(data)[names(data) == "Opening Theatres"] <- "Opening_Theatres"
+names(data)[names(data) == "Known Story"] <- "Known_Story"
+
+# Renombrar la variable de críticos de forma robusta
+names(data)[grepl("Critics", names(data))] <- "Critics_Opinion"
+
+# Revisar estructura de los datos
+str(data)
+head(data)
+
+# Eliminar filas con datos faltantes
+data <- na.omit(data)
+
+# Crear variable auxiliar para comedia
+data <- data %>%
+  mutate(Comedy = ifelse(Genre == "Comedy", 1, 0))
+
+# Crear ROI de EE. UU.
+data <- data %>%
+  mutate(ROI_US = (Total_US_Gross - Budget) / Budget)
