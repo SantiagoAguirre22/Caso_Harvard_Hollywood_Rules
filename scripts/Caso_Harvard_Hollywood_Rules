@@ -714,3 +714,71 @@ tabla_6d_gt <- tabla_6d %>%
   )
 
 invisible(tabla_6d_gt)
+
+# ---------------------------------------------------------
+# Punto 7
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+modelo_7a <- lm(Total_US_Gross ~ Opening_Gross, data = data)
+
+summary(modelo_7a)
+
+tabla_7a <- tidy(modelo_7a) %>%
+  select(term, estimate, std.error, p.value) %>%
+  mutate(
+    term = ifelse(term == "(Intercept)", "Intercepto", "Opening_Gross"),
+    estimate = round(estimate, 4),
+    std.error = round(std.error, 4),
+    p.value = round(p.value, 6)
+  ) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_7a_gt <- tabla_7a %>%
+  gt() %>%
+  tab_header(
+    title = md("**Regresión Simple: Total_US_Gross vs Opening_Gross**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(85),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_7a_gt)
+
+grafico_7a <- ggplot(data, aes(x = Opening_Gross, y = Total_US_Gross)) +
+  geom_point(color = "steelblue", size = 2.5, alpha = 0.75) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Relación entre Opening_Gross y Total_US_Gross",
+    x = "Opening_Gross",
+    y = "Total_US_Gross"
+  ) +
+  formato_grafica
+
+print(grafico_7a)
+
+# ---------------------------------------------------------
+# Inciso (c)
+# ---------------------------------------------------------
+
+prueba_7c <- linearHypothesis(modelo_7a, "Opening_Gross = 4")
+tabla_7c <- as.data.frame(prueba_7c)
