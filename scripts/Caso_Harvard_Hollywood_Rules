@@ -256,3 +256,157 @@ tabla_hipotesis_roi_gt <- tabla_hipotesis_roi %>%
   )
 
 invisible(tabla_hipotesis_roi_gt)
+
+# ---------------------------------------------------------
+# Punto 3
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+prueba_3a <- t.test(Total_US_Gross ~ Comedy, data = data)
+
+tabla_3a_medias <- data.frame(
+  Grupo = c("No Comedy", "Comedy"),
+  Media = c(
+    mean(data$Total_US_Gross[data$Comedy == 0], na.rm = TRUE),
+    mean(data$Total_US_Gross[data$Comedy == 1], na.rm = TRUE)
+  )
+)
+
+tabla_3a_medias_gt <- tabla_3a_medias %>%
+  gt() %>%
+  tab_header(
+    title = md("**Comparación de Medias de Total_US_Gross**")
+  ) %>%
+  fmt_number(
+    columns = Media,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(70),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_3a_medias_gt)
+
+tabla_3a_prueba <- data.frame(
+  Estadístico = c("t", "Valor p"),
+  Valor = c(as.numeric(prueba_3a$statistic), prueba_3a$p.value)
+)
+
+tabla_3a_prueba_gt <- tabla_3a_prueba %>%
+  gt() %>%
+  tab_header(
+    title = md("**Prueba t para Total_US_Gross: Comedy vs No Comedy**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(65),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_3a_prueba_gt)
+
+grafico_3a <- ggplot(data, aes(x = factor(Comedy, labels = c("No Comedy", "Comedy")),
+                               y = Total_US_Gross)) +
+  geom_boxplot(fill = "steelblue") +
+  labs(
+    title = "Total_US_Gross por Grupo",
+    x = "Grupo",
+    y = "Total_US_Gross"
+  ) +
+  formato_grafica
+
+print(grafico_3a)
+
+# ---------------------------------------------------------
+# Inciso (b)
+# ---------------------------------------------------------
+
+prueba_3b <- t.test(ROI_US ~ Comedy, data = data)
+
+tabla_3b_medias <- data.frame(
+  Grupo = c("No Comedy", "Comedy"),
+  Media = c(
+    mean(data$ROI_US[data$Comedy == 0], na.rm = TRUE),
+    mean(data$ROI_US[data$Comedy == 1], na.rm = TRUE)
+  )
+)
+
+tabla_3b_medias_gt <- tabla_3b_medias %>%
+  gt() %>%
+  tab_header(
+    title = md("**Comparación de Medias de ROI_US**")
+  ) %>%
+  fmt_number(
+    columns = Media,
+    decimals = 4
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(70),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_3b_medias_gt)
+
+tabla_3b_prueba <- data.frame(
+  Estadístico = c("t", "Valor p"),
+  Valor = c(as.numeric(prueba_3b$statistic), prueba_3b$p.value)
+)
+
+tabla_3b_prueba_gt <- tabla_3b_prueba %>%
+  gt() %>%
+  tab_header(
+    title = md("**Prueba t para ROI_US: Comedy vs No Comedy**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(65),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_3b_prueba_gt)
+
+grafico_3b <- ggplot(data, aes(x = factor(Comedy, labels = c("No Comedy", "Comedy")),
+                               y = ROI_US)) +
+  geom_boxplot(fill = "steelblue") +
+  labs(
+    title = "ROI_US por Grupo",
+    x = "Grupo",
+    y = "ROI_US"
+  ) +
+  formato_grafica
+
+print(grafico_3b)
