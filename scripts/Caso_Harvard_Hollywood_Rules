@@ -66,3 +66,81 @@ data <- data %>%
 # Crear ROI de EE. UU.
 data <- data %>%
   mutate(ROI_US = (Total_US_Gross - Budget) / Budget)
+
+# ---------------------------------------------------------
+# Punto 1
+# ---------------------------------------------------------
+
+tabla_punto_1 <- data.frame(
+  Variable = c("Opening_Gross", "Total_US_Gross", "Total_Non_US_Gross", "Opening_Theatres"),
+  Minimum = c(
+    min(data$Opening_Gross, na.rm = TRUE),
+    min(data$Total_US_Gross, na.rm = TRUE),
+    min(data$Total_Non_US_Gross, na.rm = TRUE),
+    min(data$Opening_Theatres, na.rm = TRUE)
+  ),
+  Average = c(
+    mean(data$Opening_Gross, na.rm = TRUE),
+    mean(data$Total_US_Gross, na.rm = TRUE),
+    mean(data$Total_Non_US_Gross, na.rm = TRUE),
+    mean(data$Opening_Theatres, na.rm = TRUE)
+  ),
+  Maximum = c(
+    max(data$Opening_Gross, na.rm = TRUE),
+    max(data$Total_US_Gross, na.rm = TRUE),
+    max(data$Total_Non_US_Gross, na.rm = TRUE),
+    max(data$Opening_Theatres, na.rm = TRUE)
+  )
+)
+
+tabla_punto_1_gt <- tabla_punto_1 %>%
+  gt() %>%
+  tab_header(
+    title = md("**Resumen Inicial de Variables**")
+  ) %>%
+  fmt_number(
+    columns = c(Minimum, Average, Maximum),
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(85),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_punto_1_gt)
+
+tabla_conteos_1 <- data.frame(
+  Concepto = c("Número de comedias", "Número de películas R-rated"),
+  Valor = c(
+    sum(data$Genre == "Comedy", na.rm = TRUE),
+    sum(data$MPAA_D == 1, na.rm = TRUE)
+  )
+)
+
+tabla_conteos_1_gt <- tabla_conteos_1 %>%
+  gt() %>%
+  tab_header(
+    title = md("**Conteos Solicitados**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(70),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_conteos_1_gt)
