@@ -908,3 +908,185 @@ tabla_7g_gt <- tabla_7g %>%
 
 invisible(tabla_7g_gt)
 
+# ---------------------------------------------------------
+# Punto 8
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Inciso (a)
+# ---------------------------------------------------------
+
+modelo_8a <- lm(Total_US_Gross ~
+                  Opening_Gross +
+                  Critics_Opinion +
+                  Budget +
+                  Opening_Theatres +
+                  Sequel +
+                  Known_Story +
+                  Summer +
+                  Holiday +
+                  Christmas +
+                  MPAA_D,
+                data = data)
+
+summary(modelo_8a)
+
+tabla_8a <- tidy(modelo_8a) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_8a_gt <- tabla_8a %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Inicial del Punto 8**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_8a_gt)
+
+# ---------------------------------------------------------
+# Inciso (b)
+# ---------------------------------------------------------
+
+modelo_8b <- modelo_8a
+
+repeat {
+  pvals <- summary(modelo_8b)$coefficients[, 4]
+  pvals <- pvals[-1]
+  
+  if (max(pvals) > 0.10) {
+    variable_eliminar <- names(which.max(pvals))
+    modelo_8b <- update(modelo_8b, paste(". ~ . -", variable_eliminar))
+  } else {
+    break
+  }
+}
+
+summary(modelo_8b)
+
+tabla_8b <- tidy(modelo_8b) %>%
+  rename(
+    Variable = term,
+    Coeficiente = estimate,
+    `Error estándar` = std.error,
+    `Valor p` = p.value
+  )
+
+tabla_8b_gt <- tabla_8b %>%
+  gt() %>%
+  tab_header(
+    title = md("**Modelo Final del Punto 8**")
+  ) %>%
+  fmt_number(
+    columns = c(Coeficiente, `Error estándar`, `Valor p`),
+    decimals = 6
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(95),
+    heading.align = "center",
+    table.font.size = px(12),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_8b_gt)
+
+# ---------------------------------------------------------
+# Inciso (c)
+# ---------------------------------------------------------
+
+flags_data <- data %>%
+  filter(Movie == "Flags of Our Fathers")
+
+nueva_pelicula <- flags_data[1, , drop = FALSE]
+
+prediccion_8c <- predict(
+  modelo_8b,
+  newdata = nueva_pelicula,
+  interval = "prediction",
+  level = 0.95
+)
+
+tabla_8c <- as.data.frame(prediccion_8c) %>%
+  rename(
+    `Estimación puntual` = fit,
+    `Límite inferior` = lwr,
+    `Límite superior` = upr
+  )
+
+tabla_8c_gt <- tabla_8c %>%
+  gt() %>%
+  tab_header(
+    title = md("**Predicción para Flags of Our Fathers**")
+  ) %>%
+  fmt_number(
+    columns = everything(),
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(75),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_8c_gt)
+
+# ---------------------------------------------------------
+# Inciso (d)
+# ---------------------------------------------------------
+
+coef_criticos <- coef(modelo_8b)["Critics_Opinion"]
+impacto_10 <- coef_criticos * 10
+
+tabla_8d <- data.frame(
+  Concepto = "Incremento esperado en Total_US_Gross por 10 puntos adicionales en Critics_Opinion",
+  Valor = impacto_10
+)
+
+tabla_8d_gt <- tabla_8d %>%
+  gt() %>%
+  tab_header(
+    title = md("**Impacto de 10 Puntos Adicionales en Critics_Opinion**")
+  ) %>%
+  fmt_number(
+    columns = Valor,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_options(
+    table.width = pct(85),
+    heading.align = "center",
+    table.font.size = px(13),
+    data_row.padding = px(6)
+  )
+
+invisible(tabla_8d_gt)
+
